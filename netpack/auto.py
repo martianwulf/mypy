@@ -102,6 +102,9 @@ class PageHandler(PageElement2):
                                 count -= 1
                             time.sleep(1)
                             continue
+                        except Exception as e:
+                            print("{}. {}".format(type(e), e))
+                            break
             print("Page with id: {} done".format(self.finder.desc))
             return True
         else:
