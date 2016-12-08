@@ -105,6 +105,8 @@ class PageHandler(PageElement2):
                         except Exception as e:
                             print("{}. {}".format(type(e), e))
                             break
+                    #Wait for a second before next page flip
+                    time.sleep(1)
             print("Page with id: {} done".format(self.finder.desc))
             return True
         else:
