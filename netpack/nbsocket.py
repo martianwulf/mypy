@@ -5,7 +5,7 @@ class Nbsocket():
         contain the total size of the data being sent.
     '''
     HEADER_WIDTH = 5
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.HEADER_WIDTH = 5
     def connect(self, host, port):
