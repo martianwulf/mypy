@@ -70,6 +70,22 @@ class Clickelement(PageElement):
         if elem is not None:
             elem.click()
 
+class Selectelement(PageElement):
+    def __init__(self, Finder, By, text):
+        PageElement.__init__(self, Finder)
+        self.By = By.lower()
+        self.text = text
+    def execute(self, driver):
+        etemp = self.find(driver)
+        elem = Select(etemp)
+        if elem is not None:
+            if self.By == 'value':
+                elem.select_by_value(self.text)
+            elif self.By == 'index':
+                elem.select_by_index(self.text)
+            elif self.By == 'text':
+                elem.select_by_visible_text(self.text)
+
 class PageHandler(PageElement):
     def __init__(self, Finder, func=None):
         super().__init__(Finder)
