@@ -5,24 +5,6 @@ import os.path, csv, re
 
 date_pattern = r"^\d{4}-\d{2}-\d{2}$"
 
-def null(arg):
-    if 'YES' in arg:
-        return 'NULL'
-    else:
-        return 'NOT NULL'
-
-def primary(arg):
-    if 'PRI' in arg:
-        return 'PRIMARY KEY'
-    else:
-        return ''
-
-def default(arg):
-    if arg is not None:
-        return 'DEFAULT '+arg
-    else:
-        return ''
-
 class mydbException(Exception):
     pass
 
@@ -51,6 +33,7 @@ class mysqlDb:
         '''Commit current transaction'''
         self.conn.commit()
     def getTableCols(self, tableName):
+        '''Returns a list of columns in tablename'''
         curr = self.cursor()
         q = "select column_name from information_schema.columns where table_name = '{}'".format(tableName)
         curr.execute(q)
@@ -61,21 +44,32 @@ class mysqlDb:
                 break
             col_list.append(row[0])
         return col_list
-    def isTable(self, tablename):
+    def getTableCols2(self, tableName):
+        '''Returns a list of list of columns in tablename and their types etc'''
         curr = self.cursor()
-        curr.execute("show tables")
-        temp_list = []
+        q = "show columns in {}".format(tableName)
+        curr.execute(q)
+        col_data = []
         while True:
             row = curr.fetchone()
             if row is None:
                 break
-            else:
-                temp_list.append(row[0])
-        if tablename not in temp_list:
+            col_data.append(row)
+        return col_data
+    def isTable(self, dbasename, tablename):
+        '''Check if tablename exists in a database'''
+        curr = self.cursor()
+        queryTables = "select table_name from information_schema.tables where table_schema = '{}' and table_name = '{}'"
+        
+        curr.execute(queryTables.format(dbasename, tablename))
+        row = curr.fetchone()
+        if row is None:
             return False
         else:
             return True
+        
     def csvExport(self, tablename, outfile):
+        '''Exports a table as a csv file'''
         if not self.isTable(tablename):
             raise mydbException("Cannot find table {} in dbase".format(tablename))
         d, f = os.path.split(outfile)
@@ -111,7 +105,6 @@ class mysqlDb:
         if not os.path.isfile(infile):
             print('Cannot open file "{}"'.format(infile))
             return
-        datereg =  re.compile(date_pattern)
         extract_list = []
         with open(infile) as f:
             csvrdr = csv.reader(f)
@@ -132,21 +125,14 @@ class mysqlDb:
         '''Create a new table with the same fields as tableName'''
         if not self.isTable(tableName):
             raise Exception("Cannot find table {} in dbase".format(tableName))
+        if tableName == newTable:
+            raise Exception('new table has the same name as original table')
         curr = self.cursor()
-        curr.execute("explain {0}.{1}".format(self.dbname,tableName))
-        temp_list = []
-        while True:
-            row = curr.fetchone()
-            if row is None:
-                break
-            else:
-                temp_list.append(row)
-        q1 = "create table if not exists {}(".format(newTable)
-        q2 = []
-        for line in temp_list:
-            q2.append("{} {} {} {}".format(line[0],line[1],null(line[2]),primary(line[3])))
-        curr.execute(q1+", ".join(q2)+")")
+        #new 03/28/17
+        cloneQuery = "create table {} like {}".format(newTable, tableName)
+        curr.execute(cloneQuery)
         self.commit()
+        
     def copyTable(self, fromTable, toTable):
         if not self.isTable(fromTable) and not self.isTable(toTable):
             print('Copy failed. Invalid table')

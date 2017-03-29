@@ -36,6 +36,13 @@ def parseMapString(args):
         #for piece in m:
     return outmap
 
+def removeCommas(snum):
+    ans = ''.join(snum.split(','))
+    if ans in ['', None, 'None']:
+        return '0'
+    else:
+        return ans
+
 if __name__ == '__main__':
     if len(sys.argv)>1:
         rmap = parseCommandMap(sys.argv)

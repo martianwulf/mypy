@@ -2,6 +2,9 @@
 import re
 from configparser import ConfigParser
 
+class QuitException(Exception):
+    pass
+
 def testQuit(choice):
     '''returns True if choice == "quit" and False otherwise'''
     quitRegex = re.compile(r'^quit$',re.I)
@@ -10,6 +13,13 @@ def testQuit(choice):
         return False
     else:
         return True
+
+def testQuit2(choice):
+    '''Raises QuitException when choice == "quit"'''
+    qmo = re.search(r'^quit$', choice, re.I)
+    if qmo:
+        raise QuitException("QUIT")
+    
 
 def parseConfigFile(filename, section):
     '''returns a dictionary of items in a config file'''
