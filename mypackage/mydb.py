@@ -1,4 +1,4 @@
-#! python3
+#! python34
 import mysql.connector
 from mysql.connector import Error
 import os.path, csv, re

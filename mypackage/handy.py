@@ -1,5 +1,5 @@
 #handy module
-import re
+import re, os.path
 from configparser import ConfigParser
 
 class QuitException(Exception):
@@ -19,7 +19,15 @@ def testQuit2(choice):
     qmo = re.search(r'^quit$', choice, re.I)
     if qmo:
         raise QuitException("QUIT")
-    
+
+def testQuit3(statment):
+    '''Raises QuitException when input == "quit"'''
+    temp = input(statment)
+    qmo = re.search(r'^quit$', temp, re.I)
+    if qmo:
+        raise QuitException("QUIT")
+    else:
+        return temp    
 
 def parseConfigFile(filename, section):
     '''returns a dictionary of items in a config file'''
@@ -92,3 +100,15 @@ def parseMapString(args):
         #print('m {0}'.format(str(m)))
         #for piece in m:
     return outmap
+
+def mapFolder(location):
+    m = []
+    for dir, subs, files in os.walk(location):
+        #if not len(m):
+        #    root = location
+        #    m[root] = []
+        for sub in subs:
+            m.append({os.path.join(dir, sub):False})
+        for file in files:
+            m.append({os.path.join(dir, file):False})
+    return m
