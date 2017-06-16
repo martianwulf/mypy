@@ -1,3 +1,4 @@
+#! /usr/bin/env python3.4
 # originally called myweb
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
